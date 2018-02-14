@@ -1,12 +1,10 @@
-FROM alpine:3.4
-MAINTAINER Chris Marchesi <chrism@vancluevertech.com> (@vancluever)
+FROM frolvlad/alpine-glibc
 
 # This is the release of Nomad to pull in.
-ENV NOMAD_VERSION=0.5.6
+ENV NOMAD_VERSION=0.7.1
 
-# This is the release of https://github.com/hashicorp/docker-base to pull in order
-# to provide HashiCorp-built versions of basic utilities like dumb-init and gosu.
-ENV DOCKER_BASE_VERSION=0.0.4
+# This is the location of the releases.
+ENV HASHICORP_RELEASES=https://releases.hashicorp.com
 
 # Create a nomad user and group first so the IDs get set the same way, even as
 # the rest of this may change over time.
@@ -14,25 +12,20 @@ RUN addgroup nomad && \
     adduser -S -G nomad nomad
 
 # Set up certificates, our base tools, and Nomad.
-RUN apk add --no-cache ca-certificates curl gnupg libcap openssl && \
+RUN apk add --no-cache ca-certificates curl gnupg libcap openssl su-exec dumb-init && \
     gpg --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
-    wget https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip && \
-    wget https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS && \
-    wget https://releases.hashicorp.com/docker-base/${DOCKER_BASE_VERSION}/docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS.sig && \
-    gpg --batch --verify docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS.sig docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS && \
-    grep ${DOCKER_BASE_VERSION}_linux_amd64.zip docker-base_${DOCKER_BASE_VERSION}_SHA256SUMS | sha256sum -c && \
-    unzip docker-base_${DOCKER_BASE_VERSION}_linux_amd64.zip && \
-    cp bin/gosu bin/dumb-init /bin && \
+    wget ${HASHICORP_RELEASES}/nomad/${NOMAD_VERSION}/nomad_${NOMAD_VERSION}_linux_amd64.zip && \
+    wget ${HASHICORP_RELEASES}/nomad/${NOMAD_VERSION}/nomad_${NOMAD_VERSION}_SHA256SUMS && \
+    wget ${HASHICORP_RELEASES}/nomad/${NOMAD_VERSION}/nomad_${NOMAD_VERSION}_SHA256SUMS.sig && \
+    gpg --batch --verify nomad_${NOMAD_VERSION}_SHA256SUMS.sig nomad_${NOMAD_VERSION}_SHA256SUMS && \
+    grep nomad_${NOMAD_VERSION}_linux_amd64.zip nomad_${NOMAD_VERSION}_SHA256SUMS | sha256sum -c && \
+    unzip -d /bin nomad_${NOMAD_VERSION}_linux_amd64.zip && \
     cd /tmp && \
     rm -rf /tmp/build && \
     apk del gnupg openssl && \
     rm -rf /root/.gnupg
-
-# We use a pre-staged static Nomad binary as upstream binaries are linked
-# against only LXC or glibc. The Dockerfile expects this at pkg/nomad.
-COPY pkg/nomad /bin/nomad
 
 # The /nomad/data dir is used by Nomad to store state. The agent will be started
 # with /nomad/config as the configuration directory so you can add additional

@@ -1,4 +1,4 @@
-#!/bin/dumb-init /bin/sh
+#!/usr/bin/dumb-init /bin/sh
 set -e
 
 # Note above that we run dumb-init as PID 1 in order to reap zombie processes
@@ -37,7 +37,7 @@ fi
 # DOCKER_GID, if set, will create a "docker" group with the GID passed in to
 # the environment variable. This is to facilitate permission to any bind
 # mounted docker socket.
-# 
+#
 # Note that this will conflict if an image is built off of this one with Docker
 # in it - if the group already exists, this will fail.
 if [ -n "$DOCKER_GID" ]; then
@@ -84,7 +84,7 @@ if [ "$1" = 'nomad' ]; then
         chown nomad:nomad /nomad/config
     fi
 
-    set -- gosu nomad "$@"
+    set -- su-exec nomad:nomad "$@"
 fi
 
 exec "$@"
