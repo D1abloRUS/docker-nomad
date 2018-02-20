@@ -12,7 +12,7 @@ RUN addgroup nomad && \
     adduser -S -G nomad nomad
 
 # Set up certificates, our base tools, and Nomad.
-RUN apk add --no-cache ca-certificates curl gnupg libcap openssl su-exec dumb-init && \
+RUN apk add --no-cache ca-certificates curl gnupg libcap openssl su-exec dumb-init shadow && \
     gpg --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
@@ -32,7 +32,8 @@ RUN apk add --no-cache ca-certificates curl gnupg libcap openssl su-exec dumb-in
 # config files in that location.
 RUN mkdir -p /nomad/data && \
     mkdir -p /nomad/config && \
-    chown -R nomad:nomad /nomad
+    chown -R nomad:nomad /nomad && \
+    groupmod -g 1999 ping
 
 # Expose the nomad data directory as a volume since there's mutable state in there.
 VOLUME /nomad/data
