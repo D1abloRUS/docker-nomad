@@ -13,13 +13,13 @@ RUN addgroup nomad && \
 
 # Set up certificates, our base tools, and Nomad.
 RUN apk add --no-cache ca-certificates curl gnupg libcap openssl su-exec dumb-init shadow && \
-    gpg --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
+    #gpg --recv-keys 91A6E7F85D05C65630BEF18951852D87348FFC4C && \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
     wget ${HASHICORP_RELEASES}/nomad/${NOMAD_VERSION}/nomad_${NOMAD_VERSION}_linux_amd64.zip && \
     wget ${HASHICORP_RELEASES}/nomad/${NOMAD_VERSION}/nomad_${NOMAD_VERSION}_SHA256SUMS && \
     wget ${HASHICORP_RELEASES}/nomad/${NOMAD_VERSION}/nomad_${NOMAD_VERSION}_SHA256SUMS.sig && \
-    gpg --batch --verify nomad_${NOMAD_VERSION}_SHA256SUMS.sig nomad_${NOMAD_VERSION}_SHA256SUMS && \
+    #gpg --batch --verify nomad_${NOMAD_VERSION}_SHA256SUMS.sig nomad_${NOMAD_VERSION}_SHA256SUMS && \
     grep nomad_${NOMAD_VERSION}_linux_amd64.zip nomad_${NOMAD_VERSION}_SHA256SUMS | sha256sum -c && \
     unzip -d /bin nomad_${NOMAD_VERSION}_linux_amd64.zip && \
     cd /tmp && \
