@@ -35,8 +35,7 @@ RUN mkdir -p /nomad/data && \
     chown -R nomad:nomad /nomad && \
     chmod 755 /run && \
     groupmod -g 1999 ping && \
-    groupadd -g 999 docker && \
-    usermod -aG docker nomad
+    groupmod -g 999 nomad
 
 # Expose the nomad data directory as a volume since there's mutable state in there.
 VOLUME /nomad/data
