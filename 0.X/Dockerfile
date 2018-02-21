@@ -33,7 +33,9 @@ RUN apk add --no-cache ca-certificates curl gnupg libcap openssl su-exec dumb-in
 RUN mkdir -p /nomad/data && \
     mkdir -p /nomad/config && \
     chown -R nomad:nomad /nomad && \
-    groupmod -g 1999 ping
+    groupmod -g 1999 ping && \
+    groupadd -g 999 docker && \
+    usermod -aG docker nomad
 
 # Expose the nomad data directory as a volume since there's mutable state in there.
 VOLUME /nomad/data
