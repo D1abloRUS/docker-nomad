@@ -9,10 +9,7 @@ ENV HASHICORP_RELEASES=https://releases.hashicorp.com
 # Create a nomad user and group first so the IDs get set the same way, even as
 # the rest of this may change over time.
 RUN addgroup nomad && \
-    adduser -S -G nomad nomad && \
-    groupmod -g 1999 ping && \
-    groupadd -g 999 docker && \
-    usermod -aG docker nomad
+    adduser -S -G nomad nomad
 
 # Set up certificates, our base tools, and Nomad.
 RUN apk add --no-cache ca-certificates curl gnupg libcap openssl su-exec dumb-init shadow && \
@@ -35,7 +32,10 @@ RUN apk add --no-cache ca-certificates curl gnupg libcap openssl su-exec dumb-in
 # config files in that location.
 RUN mkdir -p /nomad/data && \
     mkdir -p /nomad/config && \
-    chown -R nomad:nomad /nomad
+    chown -R nomad:nomad /nomad && \
+    groupmod -g 1999 ping && \
+    groupadd -g 999 docker && \
+    usermod -aG docker nomad
 
 # Expose the nomad data directory as a volume since there's mutable state in there.
 VOLUME /nomad/data
