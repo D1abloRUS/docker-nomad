@@ -43,10 +43,10 @@ fi
 if [ -n "$DOCKER_GID" ]; then
   if [ "$(getent group docker > /dev/null; echo $?)" -eq "0" ]; then
     echo "DOCKER_GID supplied and docker group already exists"
-    exit 1
+  else
+    echo "==> Creating Docker group as gid $DOCKER_GID <=="
+    echo "docker:x:${DOCKER_GID}:nomad" >> /etc/group
   fi
-  echo "==> Creating Docker group as gid $DOCKER_GID <=="
-  echo "docker:x:${DOCKER_GID}:nomad" >> /etc/group
 fi
 
 # If the user is trying to run Nomad directly with some arguments, then
